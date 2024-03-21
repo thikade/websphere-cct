@@ -238,8 +238,11 @@ def getConfigElements(configElements,AdminConfig,regexList):
 def getConfigAsDict(cfg,AdminConfig):
 	global MasterDict
 	cDict = {}
+	toggle_j2eeResourceProp=False
 	if not MasterDict.has_key(cfg):
 		try:
+			if re.match('.*J2EEResourceProperty_.*', cfg):
+				toggle_j2eeResourceProp=True
 			printMsg('Getting ' + cfg,True)
 			attrs=AdminConfig.show(cfg)
 			if attrs == None:
@@ -252,6 +255,9 @@ def getConfigAsDict(cfg,AdminConfig):
 				idx=attr.find(' ')
 				key=attr[:idx]
 				value=attr[idx+1:]
+				if toggle_j2eeResourceProp and key == "name":
+					# Force J2EEResourceProperties to start with lowercase character!
+					value=value[:1].lower() + value[1:]
 				cDict.update({key:value})
 			MasterDict.update({cfg:cDict})
 			keys=cDict.keys()
